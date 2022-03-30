@@ -16,7 +16,7 @@
 #include <signal.h>
 #include <pthread.h> // threads
 
-#define PORT "3490"  // the port users will be connecting to
+#define PORT "3491"  // the port users will be connecting to
 
 #define BACKLOG 10   // how many pending connections queue will hold
 
@@ -31,7 +31,8 @@ void *get_in_addr(struct sockaddr *sa)
     return &(((struct sockaddr_in6*)sa)->sin6_addr);
 }
 
-void *threadfunc(int new_fd) {
+void *threadfunc(void *newfd) {
+    int new_fd = *(int*)newfd;
     if (send(new_fd, "Hello, world!", 13, 0) == -1) {
                 perror("send");
     }
