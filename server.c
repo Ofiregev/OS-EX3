@@ -16,7 +16,7 @@
 #include <signal.h>
 #include <pthread.h> // threads
 
-#define PORT "3491"  // the port users will be connecting to
+#define PORT "3490"  // the port users will be connecting to
 
 #define BACKLOG 10   // how many pending connections queue will hold
 
@@ -32,11 +32,11 @@ void *get_in_addr(struct sockaddr *sa)
 }
 
 void *threadfunc(void *newfd) {
-    int new_fd = *(int*)newfd;
-    if (send(new_fd, "Hello, world!", 13, 0) == -1) {
-                perror("send");
+    int new_fd = *(int*)newfd;  
+    if (send(new_fd, "Hello, world!", 13, 0) == -1)  {
+            perror("send");
     }
-            close(new_fd);
+    close(new_fd);
 }
 int main(void)
 {
@@ -67,8 +67,7 @@ int main(void)
             continue;
         }
 
-        if (setsockopt(sockfd, SOL_SOCKET, SO_REUSEADDR, &yes,
-                sizeof(int)) == -1) {
+        if (setsockopt(sockfd, SOL_SOCKET, SO_REUSEADDR, &yes,sizeof(int)) == -1) {
             perror("setsockopt");
             exit(1);
         }
@@ -95,7 +94,7 @@ int main(void)
     }
 
     printf("server: waiting for connections...\n");
-
+    int j = 0;
     while(1) {  // main accept() loop
         sin_size = sizeof their_addr;
         int new_fd = accept(sockfd, (struct sockaddr *)&their_addr, &sin_size);
@@ -107,9 +106,10 @@ int main(void)
         inet_ntop(their_addr.ss_family,
         get_in_addr((struct sockaddr *)&their_addr), s, sizeof s);
         printf("server: got connection from %s\n", s);
-
-        pthread_t thread_id;
-        pthread_create(&thread_id, NULL, threadfunc, &new_fd);
+        
+        pthread_t *thread_id = (pthread_t*)malloc(sizeof(pthread_t)*10); // up to 10 clients
+        pthread_create(&thread_id[j%10], NULL, threadfunc, &new_fd);
+        j++;
 
     }
 
