@@ -5,15 +5,17 @@ CXXFLAGS=-pthread
 
 OBJECTS=server.c
 
-all: server
+all: server 
 	./$^
 
-original: original.clang
+client: clientC
+	./client localhost
+
+original: original.c
 	$(CXX) $^ -o original
 
-client: client.c
+clientC: client.c
 	$(CXX) $^ -o client
-	
 
 server: $(OBJECTS)
 	$(CXX) $(CXXFLAGS) $^ -o server

@@ -16,7 +16,7 @@
 #include <signal.h>
 #include <pthread.h> // threads
 
-#define PORT "3490"  // the port users will be connecting to
+#define PORT "1500"  // the port users will be connecting to
 
 #define BACKLOG 10   // how many pending connections queue will hold
 
@@ -95,9 +95,11 @@ int main(void)
 
     printf("server: waiting for connections...\n");
     int j = 0;
+    int new_fd;
     while(1) {  // main accept() loop
         sin_size = sizeof their_addr;
-        int new_fd = accept(sockfd, (struct sockaddr *)&their_addr, &sin_size);
+        
+        new_fd = accept(sockfd, (struct sockaddr *)&their_addr, &sin_size);
         if (new_fd == -1) {
             perror("accept");
             continue;
@@ -107,9 +109,8 @@ int main(void)
         get_in_addr((struct sockaddr *)&their_addr), s, sizeof s);
         printf("server: got connection from %s\n", s);
         
-        pthread_t *thread_id = (pthread_t*)malloc(sizeof(pthread_t)*10); // up to 10 clients
-        pthread_create(&thread_id[j%10], NULL, threadfunc, &new_fd);
-        j++;
+        pthread_t *thread_id = (pthread_t*)malloc(sizeof(pthread_t)*BACKLOG); // up to 10 clients
+        pthread_create(&thread_id[j++%BACKLOG], NULL, threadfunc, &new_fd);
 
     }
 
