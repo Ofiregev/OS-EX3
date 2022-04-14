@@ -5,6 +5,8 @@ CXXFLAGS=-pthread
 
 OBJECTS=server.c
 
+VALGRIND_FLAGS=-v --leak-check=full --show-leak-kinds=all  --error-exitcode=99
+
 all: server 
 	./$^
 
@@ -20,6 +22,8 @@ clientC: client.c
 server: $(OBJECTS)
 	$(CXX) $(CXXFLAGS) $^ -o server
 
+valgrind: server
+	valgrind --tool=memcheck $(VALGRIND_FLAGS) ./server | { egrep "lost| at " || true; }
 
 clean:
 	rm -f *.o main server ser cli a.out client original

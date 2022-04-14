@@ -19,7 +19,8 @@
 #define PORT "1500"  // the port users will be connecting to
 
 #define BACKLOG 10   // how many pending connections queue will hold
-
+//    pthread_t *thread_id = (pthread_t*)malloc(sizeof(pthread_t)*BACKLOG);   // up to 10 clients
+pthread_t thread_id[BACKLOG];
 
 // get sockaddr, IPv4 or IPv6:
 void *get_in_addr(struct sockaddr *sa)
@@ -33,6 +34,7 @@ void *get_in_addr(struct sockaddr *sa)
 
 void *threadfunc(void *newfd) {
     int new_fd = *(int*)newfd;  
+    pthread_detach(pthread_self());
     if (send(new_fd, "Hello, world!", 13, 0) == -1)  {
             perror("send");
     }
@@ -95,7 +97,7 @@ int main(void)
 
     printf("server: waiting for connections...\n");
     int j = 0;
-    pthread_t *thread_id = (pthread_t*)malloc(sizeof(pthread_t)*BACKLOG);   // up to 10 clients
+
     while(1) {  // main accept() loop
         sin_size = sizeof their_addr;
         int new_fd = accept(sockfd, (struct sockaddr *)&their_addr, &sin_size);
