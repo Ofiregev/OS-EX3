@@ -95,11 +95,10 @@ int main(void)
 
     printf("server: waiting for connections...\n");
     int j = 0;
-    int new_fd;
+    pthread_t *thread_id = (pthread_t*)malloc(sizeof(pthread_t)*BACKLOG);   // up to 10 clients
     while(1) {  // main accept() loop
         sin_size = sizeof their_addr;
-        
-        new_fd = accept(sockfd, (struct sockaddr *)&their_addr, &sin_size);
+        int new_fd = accept(sockfd, (struct sockaddr *)&their_addr, &sin_size);
         if (new_fd == -1) {
             perror("accept");
             continue;
@@ -109,8 +108,9 @@ int main(void)
         get_in_addr((struct sockaddr *)&their_addr), s, sizeof s);
         printf("server: got connection from %s\n", s);
         
-        pthread_t *thread_id = (pthread_t*)malloc(sizeof(pthread_t)*BACKLOG); // up to 10 clients
-        pthread_create(&thread_id[j++%BACKLOG], NULL, threadfunc, &new_fd);
+        
+        pthread_create(&thread_id[j%BACKLOG], NULL, threadfunc, &new_fd);
+        j++;
 
     }
 
